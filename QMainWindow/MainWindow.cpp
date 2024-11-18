@@ -15,12 +15,23 @@ MainWindow::MainWindow()
     QWidget *centralWidget = new QWidget(this);
     setCentralWidget(centralWidget);
 
+    //this->setStyleSheet("background-color: lightblue;");
+    this->setStyleSheet(
+        "QMainWindow { background-color: darkGray; }"
+        "QMenuBar { background-color: gray; }"
+        );
+
     // Create a layout for the central widget
     QVBoxLayout *layout = new QVBoxLayout(centralWidget);
 
     // Adjust layout margins to position the button
-    layout->setContentsMargins(325, 50, 0, 0); // Left, Top, Right, Bottom
+   // layout->setContentsMargins(325, 50, 0, 0); // Left, Top, Right, Bottom
+    QWidget *centralWidget = new QWidget(this);
+    setCentralWidget(centralWidget);
 
+    // Create a layout for the central widget
+    QGridLayout *layout = new QGridLayout(centralWidget);
+    layout->setAlignment(Qt::AlignCenter);   // Center the content in the layout
     // Create a button and add it to the layout
     QPushButton *button = new QPushButton("submit", this);
     button->setFixedWidth(100);
