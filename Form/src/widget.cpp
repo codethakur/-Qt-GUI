@@ -50,6 +50,16 @@ Widget::Widget(QWidget *parent)
         {
             QMessageBox::information(this, "Submitted", "Form has been submitted.");
             qInfo() << "Form has been submitted.";
+            // Clear the input fields
+            FirstName_Line_Edit->clear();
+            LastName_Line_Edit->clear();
+            City_Edit->clear();
+
+            // Disable the submit button to prevent resubmission
+            submitButton->setEnabled(false);
+
+            // Close the application after the message box is closed
+            QApplication::quit();
         }else {
             QMessageBox::warning(this, "warning", "Submission cancelled.");
             qInfo() << "Cancelled!";
