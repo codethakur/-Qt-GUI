@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>C:/Users/KISHAN THAKUR/Pictures/image/copying.png</file>
+        <file>C:/Users/KISHAN THAKUR/Pictures/image/cut.png</file>
+        <file>C:/Users/KISHAN THAKUR/Pictures/image/exit.png</file>
+        <file>C:/Users/KISHAN THAKUR/Pictures/image/information-button.png</file>
+        <file>C:/Users/KISHAN THAKUR/Pictures/image/Paste.png</file>
+        <file>C:/Users/KISHAN THAKUR/Pictures/image/redo.png</file>
+        <file>C:/Users/KISHAN THAKUR/Pictures/image/run.png</file>
+        <file>C:/Users/KISHAN THAKUR/Pictures/image/search.png</file>
+        <file>C:/Users/KISHAN THAKUR/Pictures/image/undo.png</file>
+    </qresource>
+</RCC>
