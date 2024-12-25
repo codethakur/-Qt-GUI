@@ -40,6 +40,27 @@ void MainWindow::on_NewWindow_triggered()
 
 void MainWindow::on_OpenFile_triggered()
 {
+     QString defaultDir = QDir::currentPath(); // Default to the current directory
+    static QString lastDir = defaultDir; // Static variable to remember last directory used
+
+    // Open a file dialog
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), lastDir, tr("Text Files (*.txt);;All Files (*)"));
+
+    // Check if user selected a file
+    if (!fileName.isEmpty()) {
+        lastDir = QFileInfo(fileName).absolutePath(); // Update last used directory
+
+        QFile file(fileName);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream in(&file);
+            ui->textEdit->setPlainText(in.readAll()); // Load file content into textEdit
+            file.close();
+
+            ui->textEdit->document()->setModified(false); // Reset modified flag
+        } else {
+            QMessageBox::warning(this, tr("Open File"), tr("Failed to open the selected file."));
+        }
+    }
 
 }
 
