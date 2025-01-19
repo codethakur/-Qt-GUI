@@ -1,17 +1,33 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include<QApplication>
+#include <QFileDialog>
+#include <QMessageBox>
 #include <QTextStream>
-#include<QMessageBox>
-#include <QStatusBar>
-#include<QTimer>
-#include<QFileDialog>
-#include<QFile>
+#include <QTabWidget>
+#include <QTextEdit>
+#include <QTabBar>
+#include <QDebug>
+#include <QLineEdit>
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , tabWidget(new QTabWidget(this))   // Initialize tab widget
+    , textEditor(new QTextEdit(this))  // Initialize placeholder editor
 {
     ui->setupUi(this);
+
+    setMenuBar(ui->menubar);
+
+    tabWidget->setTabsClosable(true);
+    connect(tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::closeTab);
+
+    textEditor->setDisabled(true);
+    textEditor->setPlaceholderText("Click 'New Text File' to start writing");
+    textEditor->setAlignment(Qt::AlignHCenter);  // Align the placeholder text to the center
+    // Set the placeholder editor initially
+    setCentralWidget(textEditor);
 }
 
 MainWindow::~MainWindow()
@@ -19,169 +35,71 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_NewFile_triggered()
+void MainWindow::createNewTab()
 {
-
-}
-
-
-void MainWindow::on_NewWindow_triggered()
-{
-    MainWindow* newWindow = new MainWindow(this);
-
-    // Show the new window
-    newWindow->show();
-    QDialog* newDialog = new QDialog(this);
-
-    // Show the dialog
-    //newDialog->exec();
-}
-
-
-void MainWindow::on_OpenFile_triggered()
-{
-     QString defaultDir = QDir::currentPath(); // Default to the current directory
-    static QString lastDir = defaultDir; // Static variable to remember last directory used
-
-    // Open a file dialog
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), lastDir, tr("Text Files (*.txt);;All Files (*)"));
-
-    // Check if user selected a file
-    if (!fileName.isEmpty()) {
-        lastDir = QFileInfo(fileName).absolutePath(); // Update last used directory
-
-        QFile file(fileName);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream in(&file);
-            ui->textEdit->setPlainText(in.readAll()); // Load file content into textEdit
-            file.close();
-
-            ui->textEdit->document()->setModified(false); // Reset modified flag
-        } else {
-            QMessageBox::warning(this, tr("Open File"), tr("Failed to open the selected file."));
-        }
+    if (centralWidget() != tabWidget) {
+        setCentralWidget(tabWidget);  // ✅ Ensure tabWidget is active
     }
 
+    QString tabTitle = QString("Untitled-%1").arg(tabWidget->count() + 1);
+
+    QTextEdit *textEdit = new QTextEdit(tabWidget);  // ✅ Correct parent
+    tabWidget->addTab(textEdit, tabTitle);
+    tabWidget->setCurrentWidget(textEdit);  // Focus on new tab
 }
 
 
-void MainWindow::on_OpenFolder_triggered()
-{
 
+void MainWindow::on_actionNew_Text_File_triggered()
+{
+    createNewTab();
 }
-
-
-void MainWindow::on_ExitWindow_triggered()
+void MainWindow::closeTab(int index)
 {
-    if (ui->textEdit->document()->isModified()) {
-        // Show a warning message box to confirm exit
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::warning(
-            this,
-            "TextPad",
-            "The document has unsaved changes. Are you sure you want to exit?",
-            QMessageBox::Yes | QMessageBox::No
-            );
+    QWidget *tabPage = tabWidget->widget(index);
 
-        // Handle the user's response
-        if (reply == QMessageBox::Yes) {
-            statusBar()->showMessage(tr("Quit"), 1000); // Show the message for 2 seconds
-            QTimer::singleShot(1000, this, []() {
-                QApplication::quit(); // Exit the application after delay
-            });
+    if (tabPage) {
+        tabWidget->removeTab(index);   // Remove from UI
+        tabPage->setParent(nullptr);   // Detach safely
+        tabPage->deleteLater();        // Safe deletion
+    }
+
+    if (tabWidget->count() == 0) {
+        int result = QMessageBox::warning(this, "Message title",
+                                          "All tabs are closing. Do you want to close the application?",
+                                          QMessageBox::Ok | QMessageBox::Cancel);
+
+        if (result == QMessageBox::Ok) {
+            on_actionExit_triggered();  // Exit the application
+        } else if (result == QMessageBox::Cancel) {
+            QLineEdit *q = new QLineEdit(this);
+            q->setPlaceholderText("Enter number");
+            q->setAlignment(Qt::AlignCenter);
+            setCentralWidget(q);
         }
-    } else {
-        statusBar()->showMessage(tr("Quit"), 000); // Show the message for 2 seconds
-        QTimer::singleShot(1000, this, []() {
-            QApplication::quit();
-        });
     }
 }
 
 
 
 
-void MainWindow::on_Cut_triggered()
+
+void MainWindow::on_actionOpen_triggered()
 {
-    ui->textEdit->cut();
+    // To be implemented
 }
-
-
-void MainWindow::on_Copy_triggered()
-{
-    ui->textEdit->copy();
-}
-
-
-void MainWindow::on_Paste_triggered()
-{
-    ui->textEdit->paste();
-}
-
-
-void MainWindow::on_Undo_triggered()
-{
-    ui->textEdit->undo();
-}
-
-
-void MainWindow::on_Redo_triggered()
-{
-  ui->textEdit->redo();
-}
-
-
-void MainWindow::on_Find_triggered()
-{
-
-}
-
-
-void MainWindow::on_welcome_triggered()
-{
-    // Create the QMessageBox
-    QMessageBox welcomeBox;
-    welcomeBox.setWindowTitle("Welcome to Qt Academy");
-    welcomeBox.setText(WELCOME_TEXT); // Use the constant defined in the header file
-    welcomeBox.setStandardButtons(QMessageBox::Ok); // Add an OK button
-    welcomeBox.setStyleSheet("background-color: #006F6A; color: white;"); // Customize the background color
-
-    welcomeBox.exec();
-}
-
-
-void MainWindow::on_Layout_triggered()
-{
-
-}
-
-
-void MainWindow::on_About_triggered()
-{
-    QApplication::aboutQt();
-}
-
 
 void MainWindow::on_actionSave_triggered()
 {
-    if(ui->textEdit->document()->isModified()){
-
-        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("Text Files (*.txt);;All Files (*)"));
-        if(fileName.isEmpty()){
-            return;
-        }
-        QFile file(fileName);
-        if(file.open(QIODevice::WriteOnly | QIODevice::ReadOnly))
-        {
-            QTextStream out(&file);
-            out<<ui->textEdit->toPlainText();
-            file.close();
-            ui->textEdit->document()->setModified(false);
-
-        }else{
-            QMessageBox::warning(this, tr("Save File"), tr("Failed to save file."));
-        }
-    }
-
+    // To be implemented
 }
 
+void MainWindow::on_actionSaveAs_triggered()
+{
+    // To be implemented
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    close();  // Gracefully exit the application
+}
