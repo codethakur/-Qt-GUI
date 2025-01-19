@@ -65,20 +65,21 @@ void MainWindow::closeTab(int index)
     }
 
     if (tabWidget->count() == 0) {
-        int result = QMessageBox::warning(this, "Message title",
-                                          "All tabs are closing. Do you want to close the application?",
-                                          QMessageBox::Ok | QMessageBox::Cancel);
+        int result = QMessageBox::warning(this, "Message title", 
+                    "All tabs are closing. Do you want to close the application?",
+                    QMessageBox::Ok | QMessageBox::Cancel);
 
         if (result == QMessageBox::Ok) {
             on_actionExit_triggered();  // Exit the application
         } else if (result == QMessageBox::Cancel) {
-            QLineEdit *q = new QLineEdit(this);
-            q->setPlaceholderText("Enter number");
-            q->setAlignment(Qt::AlignCenter);
-            setCentralWidget(q);
+            QMessageBox msgBox;
+            msgBox.setIcon(QMessageBox::Information);  // Corrected icon setting
+            msgBox.setText("Click 'New Text File' to start editing.");
+            msgBox.exec();
         }
     }
 }
+
 
 
 
